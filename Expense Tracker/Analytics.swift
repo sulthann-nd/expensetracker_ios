@@ -238,7 +238,7 @@ struct Analytics: View {
         let code = Locale.current.currency?.identifier ?? "USD"
         return value.formatted(.currency(code: code))
     }
-
+ 
     private func color(for category: String?) -> Color {
         switch category {
         case "Shopping": return .green

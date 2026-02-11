@@ -17,7 +17,7 @@ final class ExpenseViewModel: ObservableObject {
     init(context: NSManagedObjectContext) {
         self.context = context
     }
-
+ 
     func saveExpense(amount: Double,
                      category: String?,
                      date: Date,

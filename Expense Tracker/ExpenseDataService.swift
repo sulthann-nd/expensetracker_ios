@@ -11,7 +11,7 @@ final class ExpenseDataService {
     var canSaveToCoreData: Bool {
         context.persistentStoreCoordinator?.managedObjectModel.entitiesByName["Expense"] != nil
     }
-
+ 
     func saveExpense(amount: Double,
                      category: String,
                      date: Date,

@@ -11,7 +11,7 @@ import CoreData
 
 @objc(ExpenseEntity)
 public class ExpenseEntity: NSManagedObject {}
-
+ 
 extension ExpenseEntity {
     @nonobjc public class func fetchRequest() -> NSFetchRequest<ExpenseEntity> {
         return NSFetchRequest<ExpenseEntity>(entityName: "ExpenseEntity")

@@ -196,7 +196,7 @@ struct ExpenseListView: View {
                             .foregroundColor(.secondary)
                     }
                 }
-
+ 
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 4) {

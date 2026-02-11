@@ -70,7 +70,7 @@ struct OnboardingFlowContainer: View {
                                startPoint: .top, endPoint: .bottom)
                 .ignoresSafeArea()
             )
-
+ 
             // Skip Button Layer
             VStack {
                 HStack {

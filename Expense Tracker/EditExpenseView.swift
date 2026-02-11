@@ -187,7 +187,7 @@ struct EditExpenseView: View {
     }
 }
 
-
+ 
 // MARK: - Binding helper
 fileprivate extension Binding where Value == String? {
     init(_ source: Binding<String?>, replacingNilWith defaultValue: String) {

@@ -18,7 +18,7 @@ struct CustomDivider: View {
 struct AmountField: View {
     @Binding var amount: Double
     let maxAmount: Double
-
+ 
     var body: some View {
         HStack {
             Text("Amount")

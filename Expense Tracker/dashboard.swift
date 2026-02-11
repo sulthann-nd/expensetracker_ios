@@ -208,7 +208,7 @@ private struct ExpenseRowFromEntity: View {
                         .font(.caption)
                         .foregroundStyle(.secondary)
                 }
-
+ 
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 4) {
