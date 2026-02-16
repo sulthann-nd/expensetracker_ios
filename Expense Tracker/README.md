@@ -229,22 +229,6 @@ graph TD
     class W,X,Y,Z,AA,BB shared
 ```
 
-## 🧪 Testing
-
-### **Current Test Coverage**
-- Unit tests for controllers (planned)
-- UI tests for critical user flows (planned)
-- Integration tests for Core Data operations (planned)
-
-### **Running Tests**
-```bash
-# Run all tests
-Cmd + U in Xcode
-
-# Run specific test suite
-Select test file and run
-```
-
 ## 🤝 Contributing
 
 We welcome contributions! Please follow these steps:
@@ -261,15 +245,10 @@ We welcome contributions! Please follow these steps:
 - Add documentation for public APIs
 - Keep functions focused on single responsibilities
 
-## 📄 License
-
-This project is licensed under the MIT License - see the [LICENSE](LICENSE) file for details.
-
 ## 👨‍💻 Author
 
 **Sulthan Navadeep**
 - GitHub: [@sulthann-nd](https://github.com/sulthann-nd)
-- LinkedIn: [Your LinkedIn Profile]
 
 ## 🙏 Acknowledgments
 
