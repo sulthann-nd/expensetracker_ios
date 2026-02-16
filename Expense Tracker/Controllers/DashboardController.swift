@@ -14,9 +14,30 @@ class DashboardController: ObservableObject {
     @Published var expenses: [ExpenseEntity] = []
 
     private let viewContext: NSManagedObjectContext
+    private var cancellables = Set<AnyCancellable>()
 
     init(context: NSManagedObjectContext) {
         self.viewContext = context
+        fetchExpenses()
+        setupNotifications()
+    }
+    
+    deinit {
+        NotificationCenter.default.removeObserver(self)
+    }
+
+    private func setupNotifications() {
+        // Listen for Core Data context save notifications
+        NotificationCenter.default.addObserver(
+            self,
+            selector: #selector(contextDidSave(_:)),
+            name: .NSManagedObjectContextDidSave,
+            object: viewContext
+        )
+    }
+    
+    @objc private func contextDidSave(_ notification: Notification) {
+        // Refetch expenses when context is saved (after add/edit/delete)
         fetchExpenses()
     }
 
