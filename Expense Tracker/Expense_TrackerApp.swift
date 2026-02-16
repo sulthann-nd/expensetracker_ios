@@ -60,9 +60,9 @@ struct OnboardingFlowContainer: View {
         ZStack {
             // Swippable Onboarding Pages
             TabView(selection: $currentStep) {
-                OnboardingView().tag(0)
-                FinancialGoalsView().tag(1)
-                PrimarygoalsView().tag(2)
+                OnboardingView(currentStep: $currentStep).tag(0)
+                FinancialGoalsView(currentStep: $currentStep).tag(1)
+                PrimarygoalsView(isFinished: $isFinished, selectedTab: $selectedTab, currentStep: $currentStep).tag(2)
             }
             .tabViewStyle(PageTabViewStyle(indexDisplayMode: .always))
             .background(
@@ -78,7 +78,7 @@ struct OnboardingFlowContainer: View {
                     Button("Skip") {
                         // Persist and switch immediately
                         UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-                        selectedTab = 1
+                        selectedTab = 0
                         isFinished = true
                     }
                     .font(.headline)
@@ -87,27 +87,6 @@ struct OnboardingFlowContainer: View {
                     .padding(.trailing, 30)
                 }
                 Spacer()
-
-                // Show Get Started only on the final page (PrimarygoalsView)
-                if currentStep == 2 {
-                    Button(action: {
-                        UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
-                        selectedTab = 1
-                        isFinished = true
-                    }) {
-                        Text("Get Started")
-                            .font(.system(size: 20, weight: .bold))
-                            .foregroundColor(.white)
-                            .frame(maxWidth: .infinity)
-                            .padding(.vertical, 16)
-                            .background(
-                                LinearGradient(colors: [.orange, .yellow], startPoint: .top, endPoint: .bottom)
-                            )
-                            .cornerRadius(12)
-                            .padding(.horizontal, 40)
-                            .padding(.bottom, 60)
-                    }
-                }
             }
         }
     }

@@ -8,6 +8,8 @@
 import SwiftUI
  
 struct OnboardingView: View {
+    @Binding var currentStep: Int
+    
     var body: some View {
         ZStack {
             // Background Gradient to match the blue theme
@@ -48,7 +50,7 @@ struct OnboardingView: View {
 
                 // 4. Primary "Get Started" Button
                 Button(action: {
-                    print("Transition to setup...")
+                    currentStep = 1
                 }) {
                     Text("Get Started")
                         .font(.headline)
@@ -66,27 +68,14 @@ struct OnboardingView: View {
                         .shadow(radius: 5)
                 }
                 .padding(.horizontal, 40)
-
-                // 5. Footer Navigation
-                HStack {
-                    Spacer()
-                    // Pagination dots placeholder
-                    HStack(spacing: 8) {
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)                    }
-                    Spacer()
-                    Button("Skip") {
-                        // Skip action
-                    }
-                    .foregroundColor(.white.opacity(0.8))
-                }
-                .padding(.horizontal, 30)
-                .padding(.bottom, 20)
                 
             }
         }
     }
+}
+
+#Preview("OnboardingView") {
+    OnboardingView(currentStep: .constant(0))
 }
 
 // Helper view for the list items
@@ -119,13 +108,12 @@ extension Color {
     }
 }
 
-#Preview {
-    OnboardingView()
-}
+
 
 struct FinancialGoalsView: View {
     @State private var selectedCurrency = "USD ($)"
     @State private var monthlyLimit: Double = 1500
+    @Binding var currentStep: Int
     
     var body: some View {
         ZStack {
@@ -200,7 +188,7 @@ struct FinancialGoalsView: View {
 
                 // 4. Continue Button
                 Button(action: {
-                    // Action for next page
+                    currentStep = 2
                 }) {
                     Text("Continue")
                         .font(.headline)
@@ -211,34 +199,22 @@ struct FinancialGoalsView: View {
                         .cornerRadius(15)
                 }
                 .padding(.horizontal, 30)
-
-                // 5. Footer
-                HStack {
-                    Spacer()
-                    // Pagination (Middle dot active)
-                    HStack(spacing: 8) {
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)
-                    }
-                    Spacer()
-                    Text("Skip")
-                        .foregroundColor(.white.opacity(0.8))
-                }
-                .padding(.horizontal, 30)
-                .padding(.bottom, 20)
             }
         }
     }
 }
 
-#Preview {
-    FinancialGoalsView()
+#Preview("FinancialGoalsView") {
+    FinancialGoalsView(currentStep: .constant(1))
 }
 
 import SwiftUI
 
 struct PrimarygoalsView: View {
+    @Binding var isFinished: Bool
+    @Binding var selectedTab: Int
+    @Binding var currentStep: Int
+    
     var body: some View {
         ZStack {
             // 1. Background Gradient
@@ -279,7 +255,9 @@ struct PrimarygoalsView: View {
 
                 // 5. Get Started Button
                 Button(action: {
-                    print("Getting started...")
+                    UserDefaults.standard.set(true, forKey: "hasCompletedOnboarding")
+                    selectedTab = 0
+                    isFinished = true
                 }) {
                     Text("Get Started")
                         .font(.system(size: 20, weight: .bold))
@@ -297,31 +275,9 @@ struct PrimarygoalsView: View {
                         .shadow(color: Color.black.opacity(0.15), radius: 8, x: 0, y: 4)
                 }
                 .padding(.horizontal, 40)
-
-                // 6. Footer (Pagination & Skip)
-                HStack {
-                    Spacer()
-                    // Indicators
-                    HStack(spacing: 8) {
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)
-                        Circle().fill(Color.white.opacity(0)).frame(width: 7, height: 7)
-                    }
-                    Spacer()
-                }
-                .overlay(alignment: .trailing) {
-                    Button("Skip") { }
-                        .font(.system(size: 16, weight: .medium))
-                        .foregroundColor(.white.opacity(0.8))
-                        .padding(.trailing, 30)
-                }
-                .padding(.vertical, 25)
+                .padding(.bottom, 60)
             }
         }
     }
 }
 
-
-#Preview {
-    PrimarygoalsView()
-}
