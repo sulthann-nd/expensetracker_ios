@@ -24,7 +24,7 @@ struct AmountField: View {
             Text("Amount")
                 .font(.title2).bold()
             Spacer()
-            TextField("0", value: $amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
+            TextField("0", value: $amount, format: .number)
                 .keyboardType(.decimalPad)
                 .multilineTextAlignment(.trailing)
                 .font(.title2)

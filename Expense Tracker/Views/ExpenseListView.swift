@@ -1,8 +1,10 @@
 import SwiftUI
 import CoreData
+import Combine
 
 struct ExpenseListView: View {
     @StateObject private var controller = ExpenseListController(context: PersistenceController.shared.container.viewContext)
+    private var cancellables = Set<AnyCancellable>()
 
     var body: some View {
         ZStack(alignment: .top) {
@@ -150,8 +152,13 @@ struct ExpenseListView: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text(item.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                        .fontWeight(.semibold)
+                    HStack(spacing: 4) {
+                        Text(item.currency ?? "INR")
+                            .font(.caption)
+                            .foregroundColor(.secondary)
+                        Text(String(format: "%.2f", item.amount))
+                            .fontWeight(.semibold)
+                    }
                     Text(item.paymentMethod ?? "")
                         .font(.caption)
                         .foregroundColor(.secondary)

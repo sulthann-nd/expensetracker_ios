@@ -11,12 +11,14 @@ struct AddExpenseView: View {
     @State private var paymentMethod: String? = "Cash"
     @State private var date: Date = Date()
     @State private var note: String = ""
+    @State private var selectedCurrency: String = "INR"
 
     @AppStorage("add_amount") private var storedAmount: Double = 0
     @AppStorage("add_category") private var storedCategory: String = "Food"
     @AppStorage("add_date") private var storedDate: Double = Date().timeIntervalSince1970
     @AppStorage("add_payment") private var storedPayment: String = "Cash"
     @AppStorage("add_note") private var storedNote: String = ""
+    @AppStorage("add_currency") private var storedCurrency: String = "INR"
 
     // New state for alerts
     @State private var showAlert: Bool = false
@@ -25,6 +27,7 @@ struct AddExpenseView: View {
     @State private var isSuccess: Bool = false
 
     @StateObject private var vm: ExpenseViewModel
+    @StateObject private var exchangeRateVM = ExchangeRateViewModel()
     
     init(context: NSManagedObjectContext? = nil) {
         let ctx = context ?? PersistenceController.shared.container.viewContext
@@ -43,7 +46,8 @@ struct AddExpenseView: View {
                                              category: selectedCategory,
                                              date: date,
                                              paymentMethod: paymentMethod,
-                                             note: (note == "Optional") ? nil : note)
+                                             note: (note == "Optional") ? nil : note,
+                                             currency: selectedCurrency)
             alertTitle = "Saved"
             alertMessage = "Expense saved successfully."
             isSuccess = true
@@ -83,6 +87,10 @@ struct AddExpenseView: View {
 
                         CustomDivider()
 
+                        CurrencyPicker(selectedCurrency: $selectedCurrency, currencies: exchangeRateVM.currencySymbols)
+
+                        CustomDivider()
+
                         CategoryPicker(
                             selectedCategory: $selectedCategory,
                             categories: ["Food", "Transport", "Shopping", "Entertainment", "Bills", "Others"]
@@ -107,6 +115,7 @@ struct AddExpenseView: View {
                 .onAppear {
                     amount = storedAmount
                     selectedCategory = storedCategory
+                    selectedCurrency = storedCurrency
                     date = Date(timeIntervalSince1970: storedDate)
                     paymentMethod = storedPayment
                     if storedNote.isEmpty {
@@ -114,6 +123,8 @@ struct AddExpenseView: View {
                     } else {
                         note = storedNote
                     }
+                    // Load currency symbols
+                    exchangeRateVM.loadSymbols()
                 }
                 Spacer()
             }

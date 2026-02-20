@@ -22,7 +22,8 @@ final class ExpenseViewModel: ObservableObject {
                      category: String?,
                      date: Date,
                      paymentMethod: String?,
-                     note: String?) throws -> NSManagedObjectID {
+                     note: String?,
+                     currency: String? = "INR") throws -> NSManagedObjectID {
         let expense = ExpenseEntity(context: context)
         expense.id = UUID()
         expense.amount = amount
@@ -30,6 +31,7 @@ final class ExpenseViewModel: ObservableObject {
         expense.date = date
         expense.paymentMethod = paymentMethod
         expense.note = note
+        expense.currency = currency
         try context.save()
         lastSavedID = expense.objectID
         return expense.objectID
@@ -40,12 +42,14 @@ final class ExpenseViewModel: ObservableObject {
                        category: String?,
                        date: Date,
                        paymentMethod: String?,
-                       note: String?) throws {
+                       note: String?,
+                       currency: String?) throws {
         expense.amount = amount
         expense.category = category
         expense.date = date
         expense.paymentMethod = paymentMethod
         expense.note = note
+        expense.currency = currency
         try context.save()
     }
 

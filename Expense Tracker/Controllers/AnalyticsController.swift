@@ -13,17 +13,22 @@ class AnalyticsController: ObservableObject {
     @Published var selectedMonthDate: Date = Date()
     @Published var isMonthPickerPresented: Bool = false
     @Published var allExpenses: [ExpenseEntity] = []
+    @Published var isExchangeRateDataLoaded = false
 
     private let viewContext: NSManagedObjectContext
     private var cancellables = Set<AnyCancellable>()
+    private let exchangeRateViewModel: ExchangeRateViewModel
 
     let categoriesOrder: [String] = ["Food", "Shopping", "Transport", "Entertainment", "Bills", "Others"]
 
     init(context: NSManagedObjectContext) {
         self.viewContext = context
+        self.exchangeRateViewModel = ExchangeRateViewModel()
         fetchExpenses()
         setupBindings()
         setupNotifications()
+        // Fetch exchange rates for currency conversion
+        exchangeRateViewModel.loadInitialData()
     }
     
     deinit {
@@ -51,6 +56,14 @@ class AnalyticsController: ObservableObject {
                 self?.objectWillChange.send()
             }
             .store(in: &cancellables)
+        
+        // Track exchange rate data loading
+        exchangeRateViewModel.$latestRates
+            .combineLatest(exchangeRateViewModel.$currencySymbols)
+            .map { rates, symbols in
+                !rates.isEmpty && !symbols.isEmpty
+            }
+            .assign(to: &$isExchangeRateDataLoaded)
     }
 
     func fetchExpenses() {
@@ -76,14 +89,28 @@ class AnalyticsController: ObservableObject {
     }
 
     var totalAmount: Double {
-        filteredExpenses.reduce(0) { $0 + $1.amount }
+        filteredExpenses.reduce(0) { 
+            if exchangeRateViewModel.latestRatesDictionary.isEmpty {
+                // If rates not loaded, return amount in original currency (assuming it's INR if currency is INR)
+                return $1.currency == "INR" ? $0 + $1.amount : $0
+            } else {
+                return $0 + CurrencyConverter.convertToINR(from: $1.currency ?? "INR", amount: $1.amount, rates: exchangeRateViewModel.latestRatesDictionary)
+            }
+        }
     }
 
     var categoryTotals: [String: Double] {
         var dict: [String: Double] = [:]
         for e in filteredExpenses {
             let cat = e.category ?? "Others"
-            dict[cat, default: 0] += e.amount
+            let amount: Double
+            if exchangeRateViewModel.latestRatesDictionary.isEmpty {
+                // If rates not loaded, use amount in original currency (assuming it's INR if currency is INR)
+                amount = e.currency == "INR" ? e.amount : 0 // Skip non-INR if rates not loaded
+            } else {
+                amount = CurrencyConverter.convertToINR(from: e.currency ?? "INR", amount: e.amount, rates: exchangeRateViewModel.latestRatesDictionary)
+            }
+            dict[cat, default: 0] += amount
         }
         return dict
     }
@@ -139,7 +166,17 @@ class AnalyticsController: ObservableObject {
             // Sum filteredExpenses that fall within [startOfDay, startOfNextDay)
             let sum = filteredExpenses.reduce(0) { acc, e in
                 guard let d = e.date else { return acc }
-                return (d >= startOfDay && d < startOfNextDay) ? acc + e.amount : acc
+                if d >= startOfDay && d < startOfNextDay {
+                    let amount: Double
+                    if exchangeRateViewModel.latestRatesDictionary.isEmpty {
+                        // If rates not loaded, use amount in original currency (assuming it's INR if currency is INR)
+                        amount = e.currency == "INR" ? e.amount : 0
+                    } else {
+                        amount = CurrencyConverter.convertToINR(from: e.currency ?? "INR", amount: e.amount, rates: exchangeRateViewModel.latestRatesDictionary)
+                    }
+                    return acc + amount
+                }
+                return acc
             }
             series.append(sum)
         }
@@ -159,7 +196,14 @@ class AnalyticsController: ObservableObject {
     }
 
     var totalThisMonth: Double {
-        filteredExpenses.reduce(0) { $0 + $1.amount }
+        filteredExpenses.reduce(0) { 
+            if exchangeRateViewModel.latestRatesDictionary.isEmpty {
+                // If rates not loaded, return amount in original currency (assuming it's INR if currency is INR)
+                return $1.currency == "INR" ? $0 + $1.amount : $0
+            } else {
+                return $0 + CurrencyConverter.convertToINR(from: $1.currency ?? "INR", amount: $1.amount, rates: exchangeRateViewModel.latestRatesDictionary)
+            }
+        }
     }
 
     func monthYearString(from date: Date) -> String {
@@ -173,8 +217,7 @@ class AnalyticsController: ObservableObject {
     }()
 
     func currencyString(_ value: Double) -> String {
-        let code = Locale.current.currency?.identifier ?? "USD"
-        return value.formatted(.currency(code: code))
+        return "INR " + String(format: "%.2f", value)
     }
 
     private func color(for category: String?) -> Color {

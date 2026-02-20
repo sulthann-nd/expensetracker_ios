@@ -23,4 +23,5 @@ extension ExpenseEntity {
     @NSManaged public var date: Date?
     @NSManaged public var paymentMethod: String?
     @NSManaged public var note: String?
+    @NSManaged public var currency: String?
 }

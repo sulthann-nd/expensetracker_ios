@@ -19,10 +19,13 @@ struct EditExpenseView: View {
     @State private var date: Date = Date()
     @State private var paymentMethod: String? = nil
     @State private var note: String = ""
+    @State private var selectedCurrency: String = "INR"
 
     @State private var showDeleteConfirmation = false
 
     let categories = ["Food", "Transport", "Shopping", "Entertainment", "Bills", "Others"]
+
+    @StateObject private var exchangeRateVM = ExchangeRateViewModel()
 
     // MARK: - Lifecycle
     var body: some View {
@@ -40,6 +43,10 @@ struct EditExpenseView: View {
                     VStack(spacing: 0) {
                         // Amount
                         AmountField(amount: $amount, maxAmount: 10000)
+                        CustomDivider()
+
+                        // Currency
+                        CurrencyPicker(selectedCurrency: $selectedCurrency, currencies: exchangeRateVM.currencySymbols)
                         CustomDivider()
 
                         // Category
@@ -64,6 +71,8 @@ struct EditExpenseView: View {
             }
             .onAppear {
                 loadExpenseIfNeeded()
+                // Load currency symbols
+                exchangeRateVM.loadSymbols()
             }
             .padding(16)
 
@@ -122,6 +131,7 @@ struct EditExpenseView: View {
             if let expense = try viewContext.existingObject(with: id) as? ExpenseEntity {
                 amount = expense.amount
                 selectedCategory = expense.category ?? "Food"
+                selectedCurrency = expense.currency ?? "INR"
                 date = expense.date ?? Date()
                 paymentMethod = expense.paymentMethod
                 note = expense.note ?? ""
@@ -139,6 +149,7 @@ struct EditExpenseView: View {
                 // Update existing expense
                 expense.amount = amount
                 expense.category = selectedCategory
+                expense.currency = selectedCurrency
                 expense.date = date
                 expense.paymentMethod = paymentMethod
                 expense.note = note.isEmpty ? nil : note
@@ -148,6 +159,7 @@ struct EditExpenseView: View {
                 newExpense.id = UUID()
                 newExpense.amount = amount
                 newExpense.category = selectedCategory
+                newExpense.currency = selectedCurrency
                 newExpense.date = date
                 newExpense.paymentMethod = paymentMethod
                 newExpense.note = note.isEmpty ? nil : note

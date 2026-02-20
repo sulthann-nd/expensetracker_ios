@@ -48,25 +48,39 @@ struct Analytics: View {
                             .font(.headline)
                             .padding(.bottom, 10)
 
-                        HStack(alignment: .center, spacing: 16) {
-                            AnalyticsDonutChart(slices: controller.slices)
-                                .frame(width: 140, height: 140)
+                        if controller.isExchangeRateDataLoaded {
+                            HStack(alignment: .center, spacing: 16) {
+                                AnalyticsDonutChart(slices: controller.slices)
+                                    .frame(width: 140, height: 140)
 
-                            VStack(alignment: .leading, spacing: 10) {
-                                ForEach(controller.slices) { slice in
-                                    HStack {
-                                        AnalyticsLegendDot(color: slice.color)
-                                            .padding(.horizontal, 10)
-                                        Text(slice.name)
-                                            .font(.subheadline)
-                                        Spacer()
-                                        Text("\(Int(slice.percent * 100))%")
-                                            .font(.subheadline.weight(.semibold))
-                                            .foregroundStyle(.secondary)
+                                VStack(alignment: .leading, spacing: 10) {
+                                    ForEach(controller.slices) { slice in
+                                        HStack {
+                                            AnalyticsLegendDot(color: slice.color)
+                                                .padding(.horizontal, 10)
+                                            Text(slice.name)
+                                                .font(.subheadline)
+                                            Spacer()
+                                            Text("\(Int(slice.percent * 100))%")
+                                                .font(.subheadline.weight(.semibold))
+                                                .foregroundStyle(.secondary)
+                                        }
                                     }
                                 }
+                                .frame(maxWidth: .infinity)
                             }
-                            .frame(maxWidth: .infinity)
+                        } else {
+                            HStack {
+                                Spacer()
+                                VStack(spacing: 12) {
+                                    ProgressView()
+                                    Text("Loading chart data...")
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                }
+                                Spacer()
+                            }
+                            .frame(height: 140)
                         }
                     }
                     .padding(30)
@@ -77,19 +91,43 @@ struct Analytics: View {
                         Text("Daily Spending (Last 7 days)")
                             .font(.headline)
 
-                        AnalyticsDailyLineChart(values: controller.dailySeries(days: 7))
+                        if controller.isExchangeRateDataLoaded {
+                            AnalyticsDailyLineChart(values: controller.dailySeries(days: 7))
+                                .frame(height: 120)
+                        } else {
+                            HStack {
+                                Spacer()
+                                VStack(spacing: 12) {
+                                    ProgressView()
+                                    Text("Loading daily spending data...")
+                                        .foregroundStyle(.secondary)
+                                        .font(.subheadline)
+                                }
+                                Spacer()
+                            }
                             .frame(height: 120)
+                        }
                     }
                     .padding()
                     .modifier(AnalyticsCardBackground())
 
                     // Summary
                     VStack(spacing: 12) {
-                        AnalyticsSummaryRow(title: "Top Category", value: controller.topCategory)
-                        Divider()
-                        AnalyticsSummaryRow(title: "Average Daily Spend", value: controller.currencyString(controller.averageDailySpend(days: 7)))
-                        Divider()
-                        AnalyticsSummaryRow(title: "Total This Month", value: controller.currencyString(controller.totalThisMonth), highlight: true)
+                        if controller.isExchangeRateDataLoaded {
+                            AnalyticsSummaryRow(title: "Top Category", value: controller.topCategory)
+                            Divider()
+                            AnalyticsSummaryRow(title: "Average Daily Spend", value: controller.currencyString(controller.averageDailySpend(days: 7)))
+                            Divider()
+                            AnalyticsSummaryRow(title: "Total This Month", value: controller.currencyString(controller.totalThisMonth), highlight: true)
+                        } else {
+                            HStack {
+                                Text("Loading exchange rate data...")
+                                    .foregroundStyle(.secondary)
+                                Spacer()
+                                ProgressView()
+                            }
+                            .padding(.vertical, 8)
+                        }
                     }
                     .padding()
                     .modifier(AnalyticsCardBackground())

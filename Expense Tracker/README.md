@@ -43,12 +43,14 @@ A comprehensive iOS application for tracking personal expenses with modern Swift
 - 📅 **Daily Trends**: Daily spending patterns
 - 💰 **Budget Tracking**: Monthly spending limits
 
-### **User Experience**
-- 🎨 **Modern UI**: Clean, intuitive SwiftUI interface
-- 🌙 **Dark Mode**: Automatic dark/light mode support
-- 📱 **Responsive Design**: Optimized for all iPhone sizes
-- 🚀 **Smooth Navigation**: Tab-based navigation with onboarding
-- 💾 **Data Persistence**: Local storage with Core Data
+### **Exchange Rate Tools** 🌍💱
+- 💱 **Currency Converter** - Real-time currency conversion using local calculation with cached rates
+- 📊 **Latest Exchange Rates** - Current rates for all currencies (EUR base)
+- 📈 **Historical Rates** - Exchange rates for specific dates with filtering
+- 🏷️ **Currency Symbols** - Complete list of currency codes and names
+- 📅 **Date Picker Integration** - Calendar-based date selection for historical data
+- 🔄 **Real-time API** - Live data from ExchangeRate-API (free tier)
+- ⚡ **Smart Data Loading** - Optimized loading with caching and on-demand fetching
 
 ## 🏗 Architecture
 
@@ -69,6 +71,29 @@ This app follows the **Model-View-Controller (MVC)** architectural pattern for c
 - **AnalyticsController**: Handles analytics calculations and filtering
 - **ExpenseListController**: Controls expense list operations
 
+## 🔗 API Integration
+
+**ExchangeRate-API (Free Tier)**
+- **Base URL**: `http://api.exchangeratesapi.io/v1/` (HTTP with ATS exception)
+- **Features**: Latest rates, currency symbols, historical rates
+- **Conversion**: Local calculation using cached rates (free tier doesn't support convert endpoint)
+- **Limitations**: EUR base only, requires API key, free tier restrictions
+- **Network**: URLSession with Combine for reactive networking
+- **Security**: App Transport Security exception configured via Xcode build settings
+
+## 📦 Dependencies
+
+**Core iOS Frameworks:**
+- `SwiftUI` - Declarative UI framework
+- `CoreData` - Local data persistence
+- `Combine` - Reactive programming framework
+- `Foundation` - Core iOS functionality
+
+**Networking:**
+- `URLSession` - HTTP networking
+- `Combine` - Reactive network requests
+- `JSONDecoder` - JSON parsing
+
 ## 📂 Project Structure
 
 ```
@@ -78,10 +103,13 @@ Expense Tracker/
 │   ├── DashboardController.swift      # Dashboard data management
 │   └── ExpenseListController.swift    # Expense list operations
 ├── Models/
+│   ├── ExchangeRateModels.swift       # Exchange rate data models
+│   ├── ExchangeRateViewModel.swift    # Exchange rate business logic
 │   ├── ExpenseDataService.swift       # Data access layer
 │   ├── ExpenseEntity+CoreDataClass.swift # Core Data entity
 │   └── ExpenseViewModel.swift         # Expense operations
 ├── Services/
+│   ├── ExchangeRateService.swift      # Exchange rate API service
 │   └── Persistence.swift              # Core Data setup
 ├── Utils/
 │   └── Utiles.swift                   # Utility functions
@@ -90,6 +118,7 @@ Expense Tracker/
 │   ├── Analytics.swift                # Analytics dashboard
 │   ├── dashboard.swift                # Main dashboard
 │   ├── EditExpenseView.swift          # Edit expense form
+│   ├── ExchangeRateView.swift         # Exchange rate tools
 │   ├── ExpenseListView.swift          # Expense list with filters
 │   └── OnboardingView_mvc.swift       # Onboarding flow
 ├── Shared/
@@ -150,6 +179,31 @@ Expense Tracker/
 - Select different months using the date picker
 - View spending by category and daily trends
 
+### **Exchange Rate Tools** 🌍💱
+
+#### **Currency Converter**
+- Navigate to the Exchange tab
+- Select currencies from the dropdown menus for "From" and "To"
+- Enter the amount to convert
+- Tap "Convert" to get conversion using cached latest rates (local calculation)
+
+#### **Latest Exchange Rates**
+- View current rates for all currencies (EUR base)
+- Use the search bar to filter specific currencies
+- Real-time data fetched from ExchangeRate-API
+
+#### **Historical Rates**
+- Select a date using the date picker
+- Choose a currency from the dropdown menu
+- Tap "Fetch Historical Rates" to load past rates
+- Use search to filter the results
+
+#### **Performance Features**
+- **Smart Loading**: Currency symbols and latest rates load once when opening the tab
+- **Automatic Updates**: Historical rates refresh automatically when date changes
+- **Manual Refresh**: Use the refresh button in the top-right to update all data
+- **Efficient Caching**: Data is cached to avoid unnecessary API calls
+
 ## 🔗 File Connectivity
 
 ```mermaid
@@ -163,15 +217,25 @@ graph TD
     B --> E[Analytics.swift]
     B --> F[dashboard.swift]
     B --> G[EditExpenseView.swift]
-    B --> H[ExpenseListView.swift]
-    B --> I[OnboardingView_mvc.swift]
+    B --> H[ExchangeRateView.swift]
+    B --> I[ExpenseListView.swift]
+    B --> J[OnboardingView_mvc.swift]
     
     %% Controllers Folder
-    C --> J[AnalyticsController.swift]
-    C --> K[DashboardController.swift]
-    C --> L[ExpenseListController.swift]
+    C --> K[AnalyticsController.swift]
+    C --> L[DashboardController.swift]
+    C --> M[ExpenseListController.swift]
     
-    %% View to Controller Relationships
+    %% Models Folder
+    N[Models/] --> O[ExchangeRateModels.swift]
+    N --> P[ExchangeRateViewModel.swift]
+    N --> Q[ExpenseDataService.swift]
+    N --> R[ExpenseEntity+CoreDataClass.swift]
+    N --> S[ExpenseViewModel.swift]
+    
+    %% Services Folder
+    T[Services/] --> U[ExchangeRateService.swift]
+    T --> V[Persistence.swift]
     D --> M[ExpenseViewModel]
     E --> J
     F --> K
@@ -228,6 +292,67 @@ graph TD
     class U util
     class W,X,Y,Z,AA,BB shared
 ```
+
+## 🚀 Getting Started
+
+### **Prerequisites**
+- **Xcode**: 15.0 or later
+- **iOS**: 15.0+ deployment target
+- **macOS**: 12.0 or later
+
+### **Setup Instructions**
+
+1. **Clone the Repository**
+   ```bash
+   git clone <repository-url>
+   cd "Expense Tracker"
+   ```
+
+2. **Open in Xcode**
+   ```bash
+   open "Expense Tracker.xcodeproj"
+   ```
+
+3. **API Key Setup**
+   - Sign up for a free API key at [ExchangeRate-API](https://exchangeratesapi.io/)
+   - Open `Services/ExchangeRateService.swift`
+   - Replace `YOUR_API_KEY_HERE` with your actual API key:
+   ```swift
+   private let accessKey = "your_actual_api_key_here"
+   ```
+
+4. **App Transport Security Configuration (Required for API)**
+   - Open your project in Xcode
+   - Select the project file in the Project Navigator
+   - Select your target under "Targets"
+   - Go to the "Info" tab
+   - Under "Custom iOS Target Properties", click the "+" button
+   - Add the following keys:
+   
+   **Key**: `NSAppTransportSecurity`
+   **Type**: `Dictionary`
+   
+   **Sub-key**: `NSExceptionDomains`
+   **Type**: `Dictionary`
+   
+   **Sub-sub-key**: `api.exchangeratesapi.io`
+   **Type**: `Dictionary`
+   
+   **Sub-sub-sub-keys**:
+   - `NSExceptionAllowsInsecureHTTPLoads` → `YES` (Boolean)
+   - `NSExceptionMinimumTLSVersion` → `TLSv1.0` (String)
+   - `NSExceptionRequiresForwardSecrecy` → `NO` (Boolean)
+   - `NSIncludesSubdomains` → `YES` (Boolean)
+
+4. **Build and Run**
+   - Select your target device/simulator
+   - Press `Cmd + R` to build and run
+
+### **First Launch**
+- Complete the onboarding flow
+- Set your financial goals
+- Start adding expenses!
+- Use the Exchange tab for currency tools
 
 ## 🤝 Contributing
 

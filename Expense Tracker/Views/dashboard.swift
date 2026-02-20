@@ -56,8 +56,13 @@ struct DashboardView: View {
 
     private var statCards: some View {
         HStack(spacing: 12) {
-            StatCard(title: "Today's Spending", amount: controller.todaysSpending)
-            StatCard(title: "This Month", amount: controller.thisMonthSpending)
+            if controller.isExchangeRateDataLoaded {
+                StatCard(title: "Today's Spending", amount: controller.todaysSpending)
+                StatCard(title: "This Month", amount: controller.thisMonthSpending)
+            } else {
+                LoadingStatCard(title: "Today's Spending")
+                LoadingStatCard(title: "This Month")
+            }
         }
         .padding(.horizontal)
     }
@@ -122,7 +127,7 @@ struct DashboardView: View {
                         .foregroundColor(.secondary)
                         .padding()
                 } else {
-                    ForEach(controller.expenses.prefix(10), id: \.objectID) { e in
+                    ForEach(controller.expenses.prefix(3), id: \.objectID) { e in
                         ExpenseRowFromEntity(expenseEntity: e)
                     }
                 }
@@ -143,9 +148,45 @@ private struct StatCard: View {
             Text(title)
                 .font(.subheadline)
                 .foregroundStyle(.secondary)
-            Text(amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                .font(.title2.bold())
-                .foregroundStyle(.primary)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text("INR")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Text(String(format: "%.2f", amount))
+                    .font(.title2.bold())
+                    .foregroundStyle(.primary)
+            }
+        }
+        .frame(maxWidth: .infinity)
+        .padding(16)
+        .background(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .fill(Color(.systemBackground))
+        )
+        .overlay(
+            RoundedRectangle(cornerRadius: 16, style: .continuous)
+                .stroke(Color(.systemGray5), lineWidth: 1)
+        )
+        .shadow(color: .black.opacity(0.05), radius: 8, x: 0, y: 4)
+    }
+}
+
+private struct LoadingStatCard: View {
+    let title: String
+
+    var body: some View {
+        VStack(alignment: .leading, spacing: 8) {
+            Text(title)
+                .font(.subheadline)
+                .foregroundStyle(.secondary)
+            HStack(alignment: .firstTextBaseline, spacing: 4) {
+                Text("Loading...")
+                    .font(.subheadline)
+                    .foregroundStyle(.secondary)
+                Spacer()
+                ProgressView()
+                    .scaleEffect(0.7)
+            }
         }
         .frame(maxWidth: .infinity)
         .padding(16)
@@ -185,8 +226,13 @@ private struct ExpenseRowFromEntity: View {
                 Spacer()
 
                 VStack(alignment: .trailing, spacing: 4) {
-                    Text(expenseEntity.amount, format: .currency(code: Locale.current.currency?.identifier ?? "USD"))
-                        .font(.headline)
+                    HStack(spacing: 4) {
+                        Text(expenseEntity.currency ?? "INR")
+                            .font(.caption)
+                            .foregroundStyle(.secondary)
+                        Text(String(format: "%.2f", expenseEntity.amount))
+                            .font(.headline)
+                    }
                     if let date = expenseEntity.date {
                         Text(date.formatted(date: .abbreviated, time: .omitted))
                             .font(.caption)

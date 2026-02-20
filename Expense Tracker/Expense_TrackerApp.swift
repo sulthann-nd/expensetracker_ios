@@ -36,6 +36,14 @@ struct Expense_TrackerApp: App {
                             Label("List", systemImage: "list.bullet")
                         }
                         .tag(1)
+
+                        NavigationStack {
+                            ExchangeRateView()
+                        }
+                        .tabItem {
+                            Label("Exchange", systemImage: "dollarsign.circle.fill")
+                        }
+                        .tag(2)
                     }
                 }
             }
